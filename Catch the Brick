@@ -1,0 +1,95 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+WIDTH, HEIGHT = 800, 600
+
+# Colors
+WHITE = (255, 255, 255)
+ORANGE = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+
+# Initialize screen
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Catch the Falling Blocks")
+
+# Clock for controlling the frame rate
+clock = pygame.time.Clock()
+FPS = 60
+
+# Player properties
+player_width = 1
+player_height = 20
+player_x = (WIDTH - player_width) // 2
+player_y = HEIGHT - player_height - 10
+player_speed = 10
+
+# Block properties
+block_width = 50
+block_height = 50
+block_x = random.randint(0, WIDTH - block_width)
+block_y = -block_height
+block_speed = 5
+
+# Score
+score = 0
+font = pygame.font.Font(None, 36)
+
+# Game loop
+running = True
+while running:
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Movement
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and player_x > 0:
+        player_x -= player_speed
+    if keys[pygame.K_RIGHT] and player_x < WIDTH - player_width:
+        player_x += player_speed
+
+    # Update block position
+    block_y += block_speed
+
+    # Check if block hits the player
+    if (
+        player_x < block_x + block_width and
+        player_x + player_width > block_x and
+        player_y < block_y + block_height and
+        player_y + player_height > block_y
+    ):
+        score += 1
+        block_x = random.randint(0, WIDTH - block_width)
+        block_y = -block_height
+
+    # Reset block if it falls off screen
+    if block_y > HEIGHT:
+        block_x = random.randint(0, WIDTH - block_width)
+        block_y = -block_height
+
+    # Drawing
+    screen.fill(ORANGE)
+
+    # Draw player
+    pygame.draw.rect(screen, GREEN, (player_x, player_y, player_width, player_height))
+
+    # Draw block
+    pygame.draw.rect(screen, RED, (block_x, block_y, block_width, block_height))
+
+    # Draw score
+    score_text = font.render(f"Score: {score}", True, WHITE)
+    screen.blit(score_text, (10, 10))
+
+    # Update display
+    pygame.display.flip()
+    # Cap the frame rate
+    clock.tick(FPS)
+
+# Quit Pygame
+pygame.quit()
